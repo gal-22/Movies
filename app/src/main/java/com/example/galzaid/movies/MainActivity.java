@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                       else if (toolbar.getTitle() == inTheatersTitle) {
                              inTheaterPageNumber = inTheaterPageNumber + 1;
                             getNowPlaying();
+                            
                         }
                     }
 
