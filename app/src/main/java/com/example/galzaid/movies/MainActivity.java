@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private int pageNumber = 1;
     private int inTheaterPageNumber = 1;
     private boolean isLoading;
+    private boolean finishedLoadingInCinemas;
     private boolean isInTheater = false;
     private String movieId = "";
 
@@ -77,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
 
         }
-
         movies = new ArrayList<>();
         inTheatersMovies = new ArrayList<>();
         searchResults = new ArrayList<>();
@@ -187,8 +187,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         }// TODO change to a shared prefrences
                       else if (toolbar.getTitle() == inTheatersTitle) {
                              inTheaterPageNumber = inTheaterPageNumber + 1;
-                            getNowPlaying();
-                            
+                             getNowPlaying();
                         }
                     }
 
@@ -254,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             movie.setMovieSecondUrl(logoPath);
             inTheatersMovies.add(movie);
         }
+            showInTheaters();
     }
 
     public void getAdditionalMovieData(int movieId) {
@@ -316,13 +316,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             if (result.getAsJsonObject() != null && result.getAsJsonObject().get("results") != null) {
                                 for (int i = 0; i < result.getAsJsonObject().get("results").getAsJsonArray().size(); i++) {
                                     movieId = result.getAsJsonObject().getAsJsonObject().get("results").getAsJsonArray().get(i).getAsJsonObject().get("id").toString(); // TODO checck if needs a change!
+                                    if(i + 1 == result.getAsJsonObject().get("results").getAsJsonArray().size()) finishedLoadingInCinemas = true;
                                     getMovieDataRequestFullInCinemas(movieId);
                                 }
                             }
                         }
                         isLoading = false;
-                        showInTheaters();
 
+;
                     }
 
                 });
@@ -404,12 +405,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     public void showPopular() {
         isInTheater = false;
         moviesAdapter = new MoviesAdapter(movies, this);
+        moviesAdapter.notifyDataSetChanged();
         moviesRv.setAdapter(moviesAdapter);
     }
-
     public void showInTheaters() {
         moviesAdapter = new MoviesAdapter(inTheatersMovies, this);
-        moviesRv.setAdapter(moviesAdapter);
         moviesAdapter.notifyDataSetChanged();
         isInTheater = true;
     }

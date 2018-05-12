@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -273,14 +274,25 @@ public class MovieInfo extends AppCompatActivity {
 
     public String changeMoney(int num) { // receives an int returns a fixed string of the int
         double fixedNum;
+        DecimalFormat df = new DecimalFormat("###.#");
+        fixedNum = (double) num;
         String moneyStr;
         if (num >= 1000000000) {
-            fixedNum = num / 1000000000;
-            moneyStr = fixedNum + " Billion $";
+            fixedNum = round(fixedNum / 1000000000, 2);
+            moneyStr = df.format(fixedNum) + " Billion $";
         } else if (num >= 1000000) {
-            fixedNum = num / 1000000;
-            moneyStr = fixedNum + " Million $";
+            fixedNum = round(fixedNum / 1000000, 2);
+            moneyStr = df.format(fixedNum) + " Million $";
         } else moneyStr = num + "$";
         return moneyStr;
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 }
