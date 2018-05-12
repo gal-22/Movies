@@ -8,6 +8,7 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Movie implements Serializable {
     private static String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
@@ -22,9 +23,11 @@ public class Movie implements Serializable {
     private String runtime;
     private int budget;
     private int revenue;
+    private ArrayList<Actor> actorArrayList;
 
 
-    public Movie(String movieUrl, String movieName, String secondImageUrl, int movieId, String movieDescription, double movieRating, String releaseDate, boolean favorite, String runtime , int budget , int revenue) {
+    public Movie(String movieUrl, String movieName, String secondImageUrl, int movieId, String movieDescription, double movieRating,
+                 String releaseDate, boolean favorite, String runtime , int budget , int revenue, ArrayList<Actor> actorArrayList) {
         this.movieUrl = movieUrl;
         this.movieName = movieName;
         this.movieId = movieId;
@@ -36,6 +39,7 @@ public class Movie implements Serializable {
         this.runtime = runtime;
         this.budget = budget;
         this.revenue = revenue;
+        this.actorArrayList = actorArrayList;
     }
 
     public String getReleaseDate() {
@@ -132,7 +136,15 @@ public class Movie implements Serializable {
         this.revenue = revenue;
     }
 
-    public static Movie fromJson(JsonObject movieInfo, String extraUrl) {
+    public ArrayList<Actor> getActorArrayList() {
+        return actorArrayList;
+    }
+
+    public void setActorArrayList(ArrayList<Actor> actorArrayList) {
+        this.actorArrayList = actorArrayList;
+    }
+
+    public static Movie fromJson(JsonObject movieInfo, String extraUrl) { // TODO add the arraylist of characters
         Movie movie = new Movie();
         movie.movieName = fixStr(movieInfo.getAsJsonObject().get("title").toString());
         movie.movieRating = movieInfo.getAsJsonObject().get("vote_average").getAsDouble();
@@ -149,7 +161,6 @@ public class Movie implements Serializable {
 
     public static Movie fromJsonSearched(JsonObject movieInfo, String extraUrl) {
         Movie movie = new Movie();
-        Log.i("fafa" , "kaka" +movieInfo.toString());
         movie.movieName = fixStr(movieInfo.getAsJsonObject().get("title").toString());
         movie.movieRating = movieInfo.getAsJsonObject().get("vote_average").getAsDouble();
         movie.movieUrl = fixStr(movieInfo.getAsJsonObject().get("poster_path").toString());

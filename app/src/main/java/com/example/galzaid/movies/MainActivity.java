@@ -17,6 +17,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.galzaid.movies.database.DBHelper;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequestFull(String movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY)
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -211,8 +212,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         } else {
                             if (result != null) {
                                 String logoPath;
+                                JsonArray actorsArrJson;
+                                ArrayList<Actor> actorArrayList;
                                 if (result.getAsJsonObject().get("backdrop_path") != null) {
                                     logoPath = result.getAsJsonObject().get("backdrop_path").toString();
+                                    actorsArrJson = result.getAsJsonObject().get("credits").getAsJsonObject()
+                                            .get("cast").getAsJsonArray();
+                                    actorArrayList = createActorArr(actorsArrJson);
+                                   Log.i("actor" , "" + actorArrayList.size());
                                     renderResult(result, logoPath);
                                 }
 
@@ -429,7 +436,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             } else super.onBackPressed();
         }
     }
-
+    public ArrayList<Actor> createActorArr(JsonArray actorJsonArr) {
+        ArrayList<Actor> actorArrayList = new ArrayList<>();
+        for(int i = 0; i < actorJsonArr.size(); i++) {
+             actorArrayList.add(Actor.createActorFromJson(actorJsonArr.get(i).getAsJsonObject()));
+        }
+        return actorArrayList;
+    }
 
 }
 
