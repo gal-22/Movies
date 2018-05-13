@@ -125,11 +125,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
     }
 
-    private void renderResult(JsonObject movieData, String logoPath) {
+    private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList) {
         Movie movie;
         movie = Movie.fromJson(movieData, logoPath); // has been done just to check if the movie exists and has a name
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
+            movie.setActorArrayList(actorArrayList);
             movies.add(movie);
             moviesAdapter.notifyDataSetChanged();
         }
@@ -141,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         movie = Movie.fromJsonSearched(movieData, logoPath); // has been done just to check if the movie exists and has a name
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
+            movie.setActorArrayList(createActorArr(movieData.getAsJsonObject().get("credits").getAsJsonObject()
+                    .get("cast").getAsJsonArray()));
             searchResults.add(movie);
             showSearched();
         }
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                             .get("cast").getAsJsonArray();
                                     actorArrayList = createActorArr(actorsArrJson);
                                    Log.i("actor" , "" + actorArrayList.size());
-                                    renderResult(result, logoPath);
+                                    renderResult(result, logoPath , actorArrayList);
                                 }
 
 
@@ -265,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getAdditionalMovieData(int movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY)
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY  + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -300,7 +303,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             for (int i = 0; i < length; i++) {
                                 int movieId = result.get("results").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
                                 getAdditionalMovieData(movieId);
-                                //       renderSearchedResult(result, logoPath, i, runtime); // will render only if it is loaded
                             }
                         }
                     }

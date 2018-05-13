@@ -23,8 +23,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Movie> movies;
     private Context context;
-    private ArrayList<Movie> dataSet;
-
 
     public MoviesAdapter(ArrayList<Movie> movies, Context context) {
         this.movies = movies;
@@ -49,13 +47,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         return movies.size();
     }
 
-    public void setDataSet(ArrayList<Movie> dataSet) {
-        this.dataSet = dataSet;
-    }
 
-    public ArrayList<Movie> getDataSet() {
-        return this.dataSet;
-    }
     public class MoviesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ConstraintLayout movieConstraint;
         private TextView movieName;
@@ -93,14 +85,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);
+            ArrayList<Actor> actorArrayList = new ArrayList<>();
             Intent intent = new Intent(context, MovieInfo.class);
             intent.putExtra("movie", movie);
+            intent.putExtra("actors" ,actorArrayList);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation((Activity) context, moviePoster, "profile");
             context.startActivity(intent, options.toBundle());
         }
-
-
     }
 }
 

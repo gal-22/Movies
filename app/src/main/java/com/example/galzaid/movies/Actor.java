@@ -4,7 +4,9 @@ import android.util.Log;
 
 import com.google.gson.JsonObject;
 
-public class Actor {
+import java.io.Serializable;
+
+public class Actor implements Serializable {
     private int actorId;
     private String profilePath;
     private String name;

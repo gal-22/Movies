@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -44,6 +46,7 @@ public class MovieInfo extends AppCompatActivity {
     private TextView budgetTv;
     private TextView revenueTv;
     public TextView runtimeTv;
+    private RecyclerView actorsRv;
     private FloatingActionButton likeFab;
     private AppBarLayout appBarLayout;
     private MenuItem likeMenu;
@@ -53,6 +56,12 @@ public class MovieInfo extends AppCompatActivity {
     private Context context;
     private YouTubePlayerSupportFragment frag;
     private YouTubePlayer.OnInitializedListener onInitializedListener;
+    private LinearLayoutManager linearLayoutManager;
+    private ActorsAdapter actorsAdapter;
+    private ArrayList<Actor> actorArrayList;
+    private TextView actorNameTv;
+    private TextView actorRoleTv;
+    private ImageView actorImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +85,7 @@ public class MovieInfo extends AppCompatActivity {
         context = this;
         movieTrailersUrlKeys = new ArrayList<>();
         movieIv = findViewById(R.id.movie_iv);
+        actorsRv = findViewById(R.id.actors_rv);
         trailerTv = findViewById(R.id.trailers_title_Tv);
         movieOverviewTv = findViewById(R.id.movie_overview_tv);
         movieTitleTv = findViewById(R.id.movie_title_tv);
@@ -89,11 +99,22 @@ public class MovieInfo extends AppCompatActivity {
         appBarLayout = findViewById(R.id.main_appbar);
         runtimeTv = findViewById(R.id.runtime_tv);
         database = new DBHelper(this);
+        actorArrayList = new ArrayList<>();  // TODO add actors
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        actorsRv.setNestedScrollingEnabled(false);
+        actorsRv.setLayoutManager(linearLayoutManager);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         Intent intent = getIntent();
         selectedMovie = (Movie) intent.getSerializableExtra("movie");
+        actorNameTv = findViewById(R.id.actor_name_tv);
+        actorRoleTv = findViewById(R.id.actor_role_tv);
+        actorImage = findViewById(R.id.actor_iv);
+        actorArrayList = new ArrayList<>();
+        actorArrayList = selectedMovie.getActorArrayList();
+        actorsAdapter = new ActorsAdapter(actorArrayList, this);
+        actorsRv.setAdapter(actorsAdapter);
         getAllTrailers();
         selectedMovie.setFavorite(database.isFavorite(selectedMovie));
         if (selectedMovie.isFavorite()) {
