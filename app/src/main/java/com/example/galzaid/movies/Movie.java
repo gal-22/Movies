@@ -214,6 +214,7 @@ public class Movie implements Serializable {
         public static String runtime = "runtime";
         public static String revenue = "revenue";
         public static String budget = "budget";
+        public static String actorJsonArrStr = "actorJsonArrStr";
     }
 
     public ContentValues getContentValues() {
@@ -229,6 +230,7 @@ public class Movie implements Serializable {
         contentValues.put(Properties.runtime, runtime);
         contentValues.put(Properties.budget, budget);
         contentValues.put(Properties.revenue, revenue);
+        contentValues.put(Properties.actorJsonArrStr, actorJsonArrStr);
         return contentValues;
     }
 
@@ -245,6 +247,7 @@ public class Movie implements Serializable {
         m.runtime = c.getString(c.getColumnIndex(Properties.runtime));
         m.revenue = c.getInt(c.getColumnIndex(Properties.revenue));
         m.budget = c.getInt(c.getColumnIndex(Properties.budget));
+        m.actorJsonArrStr = c.getString(c.getColumnIndex(Properties.actorJsonArrStr));
         return m;
     }
 

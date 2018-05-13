@@ -22,6 +22,8 @@ import com.example.galzaid.movies.database.DBHelper;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -100,6 +102,7 @@ public class MovieInfo extends AppCompatActivity {
         runtimeTv = findViewById(R.id.runtime_tv);
         database = new DBHelper(this);
         actorArrayList = new ArrayList<>();  // TODO add actors
+        // FIXME: 13/05/2018
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         actorsRv.setNestedScrollingEnabled(false);
         actorsRv.setLayoutManager(linearLayoutManager);
@@ -108,6 +111,7 @@ public class MovieInfo extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         Intent intent = getIntent();
         selectedMovie = (Movie) intent.getSerializableExtra("movie");
+        selectedMovie.setActorArrayList(strToArrayList(selectedMovie.getActorJsonArrStr()));
         actorNameTv = findViewById(R.id.actor_name_tv);
         actorRoleTv = findViewById(R.id.actor_role_tv);
         actorImage = findViewById(R.id.actor_iv);
@@ -316,4 +320,29 @@ public class MovieInfo extends AppCompatActivity {
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
+
+    public ArrayList<Actor> strToArrayList(String str){
+        Gson gson = new Gson();
+        JsonArray jsonArray = new JsonArray();
+        ArrayList<Actor> actorArrayList = new ArrayList<>();
+        jsonArray = gson.fromJson(str, JsonArray.class);
+        for (int i = 0; i < jsonArray.size(); i ++) {
+            actorArrayList.add(createActorFromJson(jsonArray.get(i).getAsJsonObject()));
+        }
+        return actorArrayList;
+    }
+
+    public static Actor createActorFromJson(JsonObject actorInfo) {
+        Actor actor = new Actor(0, "", "", "");
+        if (actorInfo.getAsJsonObject() != null) {
+            actor.setActorId( actorInfo.getAsJsonObject().get("id").getAsInt());
+            actor.setName(fixStr(actorInfo.getAsJsonObject().get("name").getAsString()));
+            actor.setRole(fixStr(actorInfo.getAsJsonObject().get("character").getAsString()));
+            if (actorInfo.getAsJsonObject().get("profile_path") != null) {
+               actor.setProfilePath(fixStr((actorInfo.getAsJsonObject().get("profile_path").toString())));
+            }
+        }
+        return actor;
+    }
 }
+//TODO add to selected movie it's actors!!!!!!

@@ -86,6 +86,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);
             Intent intent = new Intent(context, MovieInfo.class);
+            Log.i("fagagagagag" , movie.getActorJsonArrStr());
             intent.putExtra("movie", movie);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation((Activity) context, moviePoster, "profile");

@@ -12,6 +12,7 @@ public class Actor implements Serializable {
     private String name;
     private String role;
 
+
     public Actor(int actorId, String profilePath, String name, String role) {
         this.actorId = actorId;
         this.profilePath = profilePath;

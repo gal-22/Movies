@@ -30,6 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 Movie.Properties.favorite + " BOOLEAN," +
                 Movie.Properties.description + " TEXT," +
                 Movie.Properties.movieRating + " DOUBLE," +
+                Movie.Properties.actorJsonArrStr + " Text," +
                 Movie.Properties.movieUrl + " TEXT," +
                 Movie.Properties.movieSecondUrl + " TEXT," +
                 Movie.Properties.budget + " DOUBLE," +
