@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.Serializable;
@@ -24,10 +25,11 @@ public class Movie implements Serializable {
     private int budget;
     private int revenue;
     private ArrayList<Actor> actorArrayList;
+    private String actorJsonArrStr;
 
 
     public Movie(String movieUrl, String movieName, String secondImageUrl, int movieId, String movieDescription, double movieRating,
-                 String releaseDate, boolean favorite, String runtime , int budget , int revenue, ArrayList<Actor> actorArrayList) {
+                 String releaseDate, boolean favorite, String runtime , int budget , int revenue, ArrayList<Actor> actorArrayList, String actorJsonArrStr) {
         this.movieUrl = movieUrl;
         this.movieName = movieName;
         this.movieId = movieId;
@@ -40,6 +42,7 @@ public class Movie implements Serializable {
         this.budget = budget;
         this.revenue = revenue;
         this.actorArrayList = actorArrayList;
+        this.actorJsonArrStr = actorJsonArrStr;
     }
 
     public String getReleaseDate() {
@@ -142,6 +145,14 @@ public class Movie implements Serializable {
 
     public void setActorArrayList(ArrayList<Actor> actorArrayList) {
         this.actorArrayList = actorArrayList;
+    }
+
+    public String getActorJsonArrStr() {
+        return actorJsonArrStr;
+    }
+
+    public void setActorJsonArrStr(String actorJsonArrStr) {
+        this.actorJsonArrStr = actorJsonArrStr;
     }
 
     public static Movie fromJson(JsonObject movieInfo, String extraUrl) { // TODO add the arraylist of characters

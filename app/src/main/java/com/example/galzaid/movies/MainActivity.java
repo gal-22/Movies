@@ -125,12 +125,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
     }
 
-    private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList) {
+    private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList , JsonArray actorJsonArr) {
         Movie movie;
         movie = Movie.fromJson(movieData, logoPath); // has been done just to check if the movie exists and has a name
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
             movie.setActorArrayList(actorArrayList);
+            movie.setActorJsonArrStr(actorJsonArr.toString());
             movies.add(movie);
             moviesAdapter.notifyDataSetChanged();
         }
@@ -144,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             movie.setMovieSecondUrl(logoPath);
             movie.setActorArrayList(createActorArr(movieData.getAsJsonObject().get("credits").getAsJsonObject()
                     .get("cast").getAsJsonArray()));
+            movie.setActorJsonArrStr(movieData.getAsJsonObject().get("credits").getAsJsonObject()
+                    .get("cast").getAsJsonArray().toString());
             searchResults.add(movie);
             showSearched();
         }
@@ -189,9 +192,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             pageNumber = pageNumber + 1;
                             getMovieDataRequest();
                         }// TODO change to a shared prefrences
-                      else if (toolbar.getTitle() == inTheatersTitle) {
-                             inTheaterPageNumber = inTheaterPageNumber + 1;
-                             getNowPlaying();
+                        else if (toolbar.getTitle() == inTheatersTitle) {
+                            inTheaterPageNumber = inTheaterPageNumber + 1;
+                            getNowPlaying();
                         }
                     }
 
@@ -222,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                     actorsArrJson = result.getAsJsonObject().get("credits").getAsJsonObject()
                                             .get("cast").getAsJsonArray();
                                     actorArrayList = createActorArr(actorsArrJson);
-                                   Log.i("actor" , "" + actorArrayList.size());
-                                    renderResult(result, logoPath , actorArrayList);
+                                    Log.i("actor" , "" + actorArrayList.size());
+                                    renderResult(result, logoPath , actorArrayList , actorsArrJson);
                                 }
 
 
@@ -263,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             movie.setMovieSecondUrl(logoPath);
             inTheatersMovies.add(movie);
         }
-            showInTheaters();
+        showInTheaters();
     }
 
     public void getAdditionalMovieData(int movieId) {
@@ -332,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         }
                         isLoading = false;
 
-;
+                        ;
                     }
 
                 });
@@ -441,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     public ArrayList<Actor> createActorArr(JsonArray actorJsonArr) {
         ArrayList<Actor> actorArrayList = new ArrayList<>();
         for(int i = 0; i < actorJsonArr.size(); i++) {
-             actorArrayList.add(Actor.createActorFromJson(actorJsonArr.get(i).getAsJsonObject()));
+            actorArrayList.add(Actor.createActorFromJson(actorJsonArr.get(i).getAsJsonObject()));
         }
         return actorArrayList;
     }

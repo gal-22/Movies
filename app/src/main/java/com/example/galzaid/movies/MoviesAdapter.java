@@ -85,14 +85,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);
-            ArrayList<Actor> actorArrayList = new ArrayList<>();
             Intent intent = new Intent(context, MovieInfo.class);
             intent.putExtra("movie", movie);
-            intent.putExtra("actors" ,actorArrayList);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation((Activity) context, moviePoster, "profile");
             context.startActivity(intent, options.toBundle());
         }
     }
 }
-
