@@ -72,12 +72,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
                         .into(moviePoster);
             } else Log.i("No url!", "No url!");
         }
-
+        boolean isClicked;
         @Override
         public void onClick(View view) {
             int pos = getAdapterPosition();
+            if(!isClicked){
+                isClicked = true;
+                changeActivity(pos);
+            }
             changeActivity(pos);
         }
+        
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);

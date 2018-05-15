@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +38,9 @@ public class ActorActivity extends AppCompatActivity {
     private ArrayList<Movie> favorites;
     private ArrayList<Movie> actorMoviesKnowFor;
     private DBHelper database;
+    private RecyclerView moviesRv;
+    private LinearLayoutManager linearLayoutManager;
+    MoviesAdapter moviesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,10 @@ public class ActorActivity extends AppCompatActivity {
         actorImageView = findViewById(R.id.actor_profile_iv);
         progressBar = findViewById(R.id.actors_progress_bar);
         actorBiographyTv = findViewById(R.id.actor_biography_tv);
+        moviesRv = findViewById(R.id.movie_actor_rv);
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        moviesRv.setNestedScrollingEnabled(false);
+        moviesRv.setLayoutManager(linearLayoutManager);
         favorites = new ArrayList<>();
         database = new DBHelper(this);
         favorites = database.getAllFavorites();
@@ -92,6 +101,7 @@ public class ActorActivity extends AppCompatActivity {
     public static String fixStr(String str) {
         assert str != null;
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
+        if(str.equals("null")) str = "";
         return str;
     }
 
@@ -164,6 +174,7 @@ public class ActorActivity extends AppCompatActivity {
         for (int i = 0; i < actorMoviesKnowFor.size(); i++) {
             if (actorMoviesKnowFor.get(i).getMovieId() == movie.getMovieId()) {
                 actorMoviesKnowFor.get(i).setBudget(credits.getAsJsonObject().get("budget").getAsInt());
+                actorMoviesKnowFor.get(i).setRuntime(fixStr(credits.getAsJsonObject().get("runtime").toString()));
                 actorMoviesKnowFor.get(i).setRevenue(credits.getAsJsonObject().get("revenue").getAsInt());
                 actorMoviesKnowFor.get(i).setActorJsonArrStr(credits.getAsJsonObject().get("credits").getAsJsonObject()
                         .get("cast").getAsJsonArray().toString());
@@ -175,7 +186,9 @@ public class ActorActivity extends AppCompatActivity {
     }
 
     private void renderAll() {
-
+        moviesAdapter = new MoviesAdapter(actorMoviesKnowFor, this);
+        moviesRv.setAdapter(moviesAdapter);
+        progressBar.progressiveStop();
     }
 
     public ArrayList<Movie> createMoviesArray(JsonArray movieInfo) {
@@ -190,10 +203,10 @@ public class ActorActivity extends AppCompatActivity {
         Movie movie = new Movie();
         movie.setMovieName(movieJson.get("title").getAsString());
         if (movieJson.getAsJsonObject().get("poster_path") != null)
-            movie.setMovieUrl(movieJson.get("poster_path").toString());
+            movie.setMovieUrl(fixStr(movieJson.get("poster_path").toString()));
         else movie.setMovieUrl("");
         if (movieJson.getAsJsonObject().get("backdrop_path") != null)
-            movie.setMovieSecondUrl(movieJson.get("backdrop_path").toString());
+            movie.setMovieSecondUrl(fixStr(movieJson.get("backdrop_path").toString()));
         else movie.setMovieSecondUrl("");
         movie.setMovieRating(movieJson.get("vote_average").getAsDouble());
         movie.setMovieId(movieJson.get("id").getAsInt());

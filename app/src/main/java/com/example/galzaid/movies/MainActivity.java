@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
     }
 
+    
+
     private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList , JsonArray actorJsonArr) {
         Movie movie;
         movie = Movie.fromJson(movieData, logoPath); // has been done just to check if the movie exists and has a name
