@@ -1,9 +1,12 @@
 package com.example.galzaid.movies;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,8 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -56,7 +63,7 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
             actorName = itemView.findViewById(R.id.actor_name_tv);
             actorRole = itemView.findViewById(R.id.actor_role_tv);
             actorPicture = itemView.findViewById(R.id.actor_iv);
-            actorConstraint.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
         public void setData(int position) {
@@ -73,7 +80,12 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
 
         @Override
         public void onClick(View view) {
-
+            int pos = getAdapterPosition();
+            Intent intent = new Intent(context,ActorActivity.class);
+            intent.putExtra("actor" , actors.get(pos));
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation((Activity) context, actorPicture, "actor_trans");
+            context.startActivity(intent, options.toBundle());
         }
     }
     public static String fixStr(String str) {
@@ -81,4 +93,5 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
             return str;
     }
+
 }

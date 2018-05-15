@@ -19,7 +19,7 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>  {
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Movie> movies;
     private Context context;
@@ -47,7 +47,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         return movies.size();
     }
 
-
     public class MoviesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ConstraintLayout movieConstraint;
         private TextView movieName;
@@ -60,7 +59,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             movieName = itemView.findViewById(R.id.movie_name_tv);
             movieRate = itemView.findViewById(R.id.movie_rating_tv);
             moviePoster = itemView.findViewById(R.id.movie_iv);
-            movieConstraint.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
         public void setData(int position) {
@@ -76,17 +75,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
         @Override
         public void onClick(View view) {
-            int pos = (int) view.getTag();
-            view.setEnabled(false);
+            int pos = getAdapterPosition();
             changeActivity(pos);
-            view.setEnabled(true);    // TODO Find a way to prevent 2 acctivites to open simultaniously
         }
-
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);
             Intent intent = new Intent(context, MovieInfo.class);
-            Log.i("fagagagagag" , movie.getActorJsonArrStr());
             intent.putExtra("movie", movie);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation((Activity) context, moviePoster, "profile");

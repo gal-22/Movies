@@ -262,9 +262,13 @@ public class MovieInfo extends AppCompatActivity {
     }
 
     private static String fixStr(String str) {
-        if (str == null) str = "";
-        if (str.charAt(0) == '"')
-            str = str.substring(1, str.length() - 1);
+        if (str == null)
+            str = "";
+       else if(str.length() > 0) {
+            if (str.charAt(0) == '"')
+                str = str.substring(1, str.length() - 1);
+        }
+        else str = "";
         return str;
     }
 

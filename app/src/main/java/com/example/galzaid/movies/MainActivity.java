@@ -334,8 +334,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             }
                         }
                         isLoading = false;
-
-                        ;
                     }
 
                 });

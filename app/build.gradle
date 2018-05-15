@@ -34,5 +34,5 @@ dependencies {
     api 'com.github.bumptech.glide:annotations:4.7.1'
     implementation 'com.android.support:design:27.1.1'
     implementation files('libs/YouTubeAndroidPlayerApi.jar')
-
+    api 'com.github.castorflex.smoothprogressbar:library:1.1.0'
 }

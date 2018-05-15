@@ -21,6 +21,7 @@
         <activity
             android:name=".MovieInfo"
             android:parentActivityName=".MainActivity" />
+        <activity android:name=".ActorActivity"></activity>
     </application>
 
 </manifest>
