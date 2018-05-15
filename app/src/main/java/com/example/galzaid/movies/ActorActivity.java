@@ -1,23 +1,26 @@
 package com.example.galzaid.movies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.galzaid.movies.database.DBHelper;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
@@ -29,6 +32,11 @@ public class ActorActivity extends AppCompatActivity {
     private TextView actorBiographyTv;
     private final String baseActorUrl = "http://image.tmdb.org/t/p/w500";
     private SmoothProgressBar progressBar;
+    private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
+    private ArrayList<Movie> favorites;
+    private ArrayList<Movie> actorMoviesKnowFor;
+    private DBHelper database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,14 +45,17 @@ public class ActorActivity extends AppCompatActivity {
         actorImageView = findViewById(R.id.actor_profile_iv);
         progressBar = findViewById(R.id.actors_progress_bar);
         actorBiographyTv = findViewById(R.id.actor_biography_tv);
-         Intent intent = getIntent();
+        favorites = new ArrayList<>();
+        database = new DBHelper(this);
+        favorites = database.getAllFavorites();
+        Intent intent = getIntent();
         selectedActor = (Actor) intent.getSerializableExtra("actor");
         getActorRequest(selectedActor.getActorId());
         Glide.with(actorImageView)
                 .load(baseActorUrl + fixStr(selectedActor.getProfilePath()))
                 .into(actorImageView);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,37 +89,136 @@ public class ActorActivity extends AppCompatActivity {
 
     }
 
-
-
-
     public static String fixStr(String str) {
         assert str != null;
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
         return str;
     }
-    public void getActorRequest(int actorId) {
+
+    public void getActorRequest(final int actorId) {  // basic information about the actor, description etc
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/person/"  + actorId + "?api_key=ba50009df309cfd8d537ba914557af7f&language=en-US")
+                .load("https://api.themoviedb.org/3/person/"  + actorId + "?api_key=" + API_KEY + "&language=en-US")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        progressBar.progressiveStop();
-                        renderPage(result);
+                        Log.i("kamram", "https://api.themoviedb.org/3/person/" + actorId + "?api_key=" + API_KEY);
+                        if(e != null) {
+                            e.printStackTrace(); //TODO handle exception
+                            Toast.makeText(ActorActivity.this, "There was an error", Toast.LENGTH_SHORT).show();
+                            progressBar.progressiveStop();
+                        }
+                        else getActorRequestFull(actorId, result);
                     }
                 });
     }
 
+    public void getActorRequestFull(int actorId, final JsonObject actorInformation) { // adds the known for information
+        Log.i("karkar", actorId + " actor id " + actorInformation.toString());
+        Ion.with(this)
+                .load("https://api.themoviedb.org/3/discover/movie?api_key=" + API_KEY + "&with_cast=" + actorId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject actorKnowFor) {
+                        initialRenderPage(actorInformation, actorKnowFor);
+                    }
+                });
+    }
+
+    public void getMovieFullData(final Movie movie) {
+        Ion.with(this)
+                .load("https://api.themoviedb.org/3/movie/" + movie.getMovieId() + "?api_key=" + API_KEY + "&append_to_response=credits")
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject credits) {
+                        addFullDataToMovie(credits, movie);
+                    }
+
+                });
+    }
+
     public int[] initColors() {
-        int[] colors; colors = new int[3];
+        int[] colors;
+        colors = new int[3];
         colors[0] = Color.parseColor("#0000FF");
         colors[1] = Color.parseColor("#007300");
         colors[2] = Color.parseColor("#e50000");
         return colors;
     }
 
-    public void renderPage(JsonObject result) {
-        String biography = result.get("biography").getAsString();
+    public void initialRenderPage(JsonObject actorInformation, JsonObject actorKnowForJson) {
+        JsonArray actorMoviesJsonArr = actorKnowForJson.getAsJsonObject().get("results").getAsJsonArray();
+        actorMoviesKnowFor = createMoviesArray(actorMoviesJsonArr); // contains only the base information!
+        for (int i = 0; i < actorMoviesKnowFor.size(); i++) {
+            getMovieFullData(actorMoviesKnowFor.get(i));
+        }
+        Log.i("far", "" + actorInformation.getAsJsonObject().toString());
+        String biography = actorInformation.getAsJsonObject().get("biography").getAsString();
         actorBiographyTv.setText(biography);
+        progressBar.progressiveStop();
+    }
+
+    public void addFullDataToMovie(JsonObject credits, Movie movie) {
+        for (int i = 0; i < actorMoviesKnowFor.size(); i++) {
+            if (actorMoviesKnowFor.get(i).getMovieId() == movie.getMovieId()) {
+                actorMoviesKnowFor.get(i).setBudget(credits.getAsJsonObject().get("budget").getAsInt());
+                actorMoviesKnowFor.get(i).setRevenue(credits.getAsJsonObject().get("revenue").getAsInt());
+                actorMoviesKnowFor.get(i).setActorJsonArrStr(credits.getAsJsonObject().get("credits").getAsJsonObject()
+                        .get("cast").getAsJsonArray().toString());
+                actorMoviesKnowFor.get(i).setActorArrayList(createActorArr(credits.getAsJsonObject().get("credits").getAsJsonObject()
+                        .get("cast").getAsJsonArray()));
+            }
+        }
+        renderAll();
+    }
+
+    private void renderAll() {
+
+    }
+
+    public ArrayList<Movie> createMoviesArray(JsonArray movieInfo) {
+        ArrayList<Movie> moviesBaseInfo = new ArrayList<>();
+        for (int i = 0; i < movieInfo.size(); i++) {
+            moviesBaseInfo.add(createMovieBaseFromJson(movieInfo.get(i).getAsJsonObject()));
+        }
+        return moviesBaseInfo;
+    }
+
+    public Movie createMovieBaseFromJson(JsonObject movieJson) {
+        Movie movie = new Movie();
+        movie.setMovieName(movieJson.get("title").getAsString());
+        if (movieJson.getAsJsonObject().get("poster_path") != null)
+            movie.setMovieUrl(movieJson.get("poster_path").toString());
+        else movie.setMovieUrl("");
+        if (movieJson.getAsJsonObject().get("backdrop_path") != null)
+            movie.setMovieSecondUrl(movieJson.get("backdrop_path").toString());
+        else movie.setMovieSecondUrl("");
+        movie.setMovieRating(movieJson.get("vote_average").getAsDouble());
+        movie.setMovieId(movieJson.get("id").getAsInt());
+        movie.setFavorite(isFavorite(movie.getMovieId()));
+        movie.setMovieDescription(movieJson.get("overview").getAsString());
+        movie.setReleaseDate(movieJson.get("release_date").getAsString());
+        return movie;
+    }
+
+
+    public boolean isFavorite(int movieId) {
+        boolean isFavorite = false;
+        for (int i = 0; i < favorites.size(); i++) {
+            if (favorites.get(i).getMovieId() == movieId) {
+                isFavorite = true;
+            }
+        }
+        return isFavorite;
+    }
+
+    public ArrayList<Actor> createActorArr(JsonArray actorJsonArr) {
+        ArrayList<Actor> actorArrayList = new ArrayList<>();
+        for (int i = 0; i < actorJsonArr.size(); i++) {
+            actorArrayList.add(Actor.createActorFromJson(actorJsonArr.get(i).getAsJsonObject()));
+        }
+        return actorArrayList;
     }
 }
