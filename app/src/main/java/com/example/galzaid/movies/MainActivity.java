@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         inTheatersMovies = new ArrayList<>();
         searchResults = new ArrayList<>();
         // Init Recycler!!!
-        moviesAdapter = new MoviesAdapter(movies, this);
+        moviesAdapter = new MoviesAdapter(movies, this , true);
         moviesRv.setAdapter(moviesAdapter);
         gridLayoutManager = new GridLayoutManager(this, 2);
         moviesRv.setNestedScrollingEnabled(false);
@@ -118,14 +118,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         getNowPlaying();
                         mDrawerLayout.closeDrawers();
                 }
-
-
                 return false;
             }
         });
     }
 
-    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        moviesAdapter.setCanStart(true);
+
+    }
 
     private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList , JsonArray actorJsonArr) {
         Movie movie;
@@ -135,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             movie.setActorArrayList(actorArrayList);
             movie.setActorJsonArrStr(actorJsonArr.toString());
             movies.add(movie);
-            moviesAdapter.notifyDataSetChanged();
+            moviesAdapter.notifyItemChanged(movies.indexOf(movie));
         }
     }
 
@@ -164,9 +167,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         if (e != null) {
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
                             Toast.makeText(MainActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
-                            Log.i("results", e.getMessage());
                             isLoading = false;
-
                         } else {
                             Log.i("TESTER", "" + (result == null));
                             if (result.getAsJsonObject() != null && result.getAsJsonObject().get("results") != null) {
@@ -354,11 +355,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
 
-    }
 
     @Override
     public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
@@ -410,25 +407,25 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void showFavorites() {
         ArrayList<Movie> favorites = database.getAllFavorites();
-        moviesAdapter = new MoviesAdapter(favorites, this);
+        moviesAdapter = new MoviesAdapter(favorites, this , true);
         moviesRv.setAdapter(moviesAdapter);
     }
 
     public void showPopular() {
         isInTheater = false;
-        moviesAdapter = new MoviesAdapter(movies, this);
+        moviesAdapter = new MoviesAdapter(movies, this , true);
         moviesAdapter.notifyDataSetChanged();
         moviesRv.setAdapter(moviesAdapter);
     }
     public void showInTheaters() {
-        moviesAdapter = new MoviesAdapter(inTheatersMovies, this);
+        moviesAdapter = new MoviesAdapter(inTheatersMovies, this , true);
         moviesAdapter.notifyDataSetChanged();
         isInTheater = true;
     }
 
     public void showSearched() {
         isInTheater = false;
-        moviesAdapter = new MoviesAdapter(searchResults, this);
+        moviesAdapter = new MoviesAdapter(searchResults, this , true);
         moviesRv.setAdapter(moviesAdapter);
     }
 

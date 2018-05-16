@@ -98,6 +98,12 @@ public class ActorActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(moviesAdapter != null) moviesAdapter.setCanStart(true);
+    }
+
     public static String fixStr(String str) {
         assert str != null;
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
@@ -173,9 +179,15 @@ public class ActorActivity extends AppCompatActivity {
     public void addFullDataToMovie(JsonObject credits, Movie movie) {
         for (int i = 0; i < actorMoviesKnowFor.size(); i++) {
             if (actorMoviesKnowFor.get(i).getMovieId() == movie.getMovieId()) {
-                actorMoviesKnowFor.get(i).setBudget(credits.getAsJsonObject().get("budget").getAsInt());
+                if(credits.getAsJsonObject() != null) {
+                    actorMoviesKnowFor.get(i).setBudget(credits.getAsJsonObject().get("budget").getAsInt());
+                }
+                else actorMoviesKnowFor.get(i).setBudget(0);
                 actorMoviesKnowFor.get(i).setRuntime(fixStr(credits.getAsJsonObject().get("runtime").toString()));
-                actorMoviesKnowFor.get(i).setRevenue(credits.getAsJsonObject().get("revenue").getAsInt());
+                if(credits.getAsJsonObject().get("revenue") != null) {
+                    actorMoviesKnowFor.get(i).setRevenue(credits.getAsJsonObject().get("revenue").getAsInt());
+                }
+                else actorMoviesKnowFor.get(i).setRevenue(0);
                 actorMoviesKnowFor.get(i).setActorJsonArrStr(credits.getAsJsonObject().get("credits").getAsJsonObject()
                         .get("cast").getAsJsonArray().toString());
                 actorMoviesKnowFor.get(i).setActorArrayList(createActorArr(credits.getAsJsonObject().get("credits").getAsJsonObject()
@@ -186,7 +198,7 @@ public class ActorActivity extends AppCompatActivity {
     }
 
     private void renderAll() {
-        moviesAdapter = new MoviesAdapter(actorMoviesKnowFor, this);
+        moviesAdapter = new MoviesAdapter(actorMoviesKnowFor, this , true);
         moviesRv.setAdapter(moviesAdapter);
         progressBar.progressiveStop();
     }

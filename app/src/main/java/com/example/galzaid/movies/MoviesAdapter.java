@@ -23,10 +23,20 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Movie> movies;
     private Context context;
+    private boolean canStart;
 
-    public MoviesAdapter(ArrayList<Movie> movies, Context context) {
+    public MoviesAdapter(ArrayList<Movie> movies, Context context , boolean canStart) {
         this.movies = movies;
         this.context = context;
+        this.canStart = canStart;
+    }
+
+    public boolean isCanStart() {
+        return canStart;
+    }
+
+    public void setCanStart(boolean canStart) {
+        this.canStart = canStart;
     }
 
     @NonNull
@@ -72,17 +82,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
                         .into(moviePoster);
             } else Log.i("No url!", "No url!");
         }
-        boolean isClicked;
+
         @Override
         public void onClick(View view) {
             int pos = getAdapterPosition();
-            if(!isClicked){
-                isClicked = true;
-                changeActivity(pos);
-            }
-            changeActivity(pos);
+            if (canStart) changeActivity(pos);
+
         }
-        
+
+
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);

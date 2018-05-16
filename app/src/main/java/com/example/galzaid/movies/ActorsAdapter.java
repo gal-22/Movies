@@ -1,6 +1,7 @@
 package com.example.galzaid.movies;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -28,10 +29,19 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Actor> actors;
     private Context context;
-
-    public ActorsAdapter(ArrayList<Actor> actors, Context context) {
+    private boolean canStart;
+    public ActorsAdapter(ArrayList<Actor> actors, Context context , boolean canStart) {
         this.actors = actors;
         this.context = context;
+        this.canStart = canStart;
+    }
+
+    public boolean isCanStart() {
+        return canStart;
+    }
+
+    public void setCanStart(boolean canStart) {
+        this.canStart = canStart;
     }
 
     @NonNull
@@ -81,6 +91,12 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
         @Override
         public void onClick(View view) {
             int pos = getAdapterPosition();
+            if(canStart) {
+                changeActivity(pos);
+            }
+        }
+
+        private void changeActivity(int pos) {
             Intent intent = new Intent(context,ActorActivity.class);
             intent.putExtra("actor" , actors.get(pos));
             ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -93,5 +109,6 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
             return str;
     }
+
 
 }

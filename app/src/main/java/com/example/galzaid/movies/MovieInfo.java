@@ -117,7 +117,7 @@ public class MovieInfo extends AppCompatActivity {
         actorImage = findViewById(R.id.actor_iv);
         actorArrayList = new ArrayList<>();
         actorArrayList = selectedMovie.getActorArrayList();
-        actorsAdapter = new ActorsAdapter(actorArrayList, this);
+        actorsAdapter = new ActorsAdapter(actorArrayList, this , true);
         actorsRv.setAdapter(actorsAdapter);
         getAllTrailers();
         selectedMovie.setFavorite(database.isFavorite(selectedMovie));
@@ -197,8 +197,10 @@ public class MovieInfo extends AppCompatActivity {
                     // Somewhere in between
                     Log.i("Between", "between");
                     Log.i("Height", "" + verticalOffset + " total + " + appBarLayout.getTotalScrollRange() + " aha " + likeFab.getVisibility());
-                    if (likeFab.getVisibility() == View.VISIBLE)
-                        likeMenu.setVisible(false);
+                    if(likeFab != null) {
+                        if (likeFab.getVisibility() == View.VISIBLE)
+                            if(likeMenu != null) likeMenu.setVisible(false);
+                    }
                     if (selectedMovie.isFavorite())
                         likeFab.setImageResource(R.drawable.ic_favorite);
                     else likeFab.setImageResource(R.drawable.ic_favorite_border);
@@ -221,6 +223,11 @@ public class MovieInfo extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        actorsAdapter.setCanStart(true);
+    }
     // this function inflates the menu with the heart icon...
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
