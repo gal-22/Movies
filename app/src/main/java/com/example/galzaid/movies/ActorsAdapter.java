@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
@@ -77,12 +77,21 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
             actorName.setText(actors.get(position).getName());
             actorRole.setText(actors.get(position).getRole());
             if (!Objects.equals(actors.get(position).getProfilePath(), "") && actors.get(position).getProfilePath() != null) {
-              //  Drawable drawable = context.getResources().getDrawable(R.drawable.no_photo_male);
-                Glide.with(actorPicture).load
-                        (baseMovieUrl + fixStr(actors.get(position).getProfilePath()))
-                        .into(actorPicture);
-                //.onLoadFailed(drawable)
-                //TODO onLoadFailed
+                if(actors.get(position).getProfilePath() != null && !actors.get(position).getProfilePath().equals("") && !actors.get(position).getProfilePath().equals("null")) {
+                    //  Drawable drawable = context.getResources().getDrawable(R.drawable.no_photo_male);
+                    Glide.with(actorPicture).load
+                            (baseMovieUrl + fixStr(actors.get(position).getProfilePath()))
+                            .transition(withCrossFade())
+                            .into(actorPicture);
+                    //.onLoadFailed(drawable)
+                    //TODO onLoadFailed
+                }
+                else {
+                    Glide.with(actorPicture)
+                            .load(R.drawable.no_photo_male)
+                            .transition(withCrossFade())
+                            .into(actorPicture);
+                }
             }
             Log.i("sat" , actors.get(position).getProfilePath());
         }

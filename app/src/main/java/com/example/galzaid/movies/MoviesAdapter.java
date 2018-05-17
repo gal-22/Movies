@@ -19,6 +19,8 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>  {
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Movie> movies;
@@ -73,6 +75,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             if (!Objects.equals(movies.get(position).getMovieUrl(), "") && movies.get(position).getMovieUrl() != null) {
                 Glide.with(moviePoster).load
                         (baseMovieUrl + movies.get(position).getMovieUrl())
+                        .transition(withCrossFade())
                         .into(moviePoster);
             } else Log.i("No url!", "No url!");
         }

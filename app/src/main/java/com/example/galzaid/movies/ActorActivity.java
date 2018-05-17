@@ -33,6 +33,8 @@ import java.util.Objects;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+
 public class ActorActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ImageView actorImageView;
@@ -65,10 +67,19 @@ public class ActorActivity extends AppCompatActivity {
         favorites = database.getAllFavorites();
         Intent intent = getIntent();
         selectedActor = (Actor) intent.getSerializableExtra("actor");
-      //  Drawable drawable = getResources().getDrawable(R.drawable.no_photo_male);
-        Glide.with(actorImageView)
-                .load(baseActorUrl + fixStr(selectedActor.getProfilePath()))
-                .into(actorImageView);
+        if(selectedActor.getProfilePath() != null && !selectedActor.getProfilePath().equals("") && !selectedActor.getProfilePath().equals("null")) {
+            //  Drawable drawable = getResources().getDrawable(R.drawable.no_photo_male);
+            Glide.with(actorImageView)
+                    .load(baseActorUrl + fixStr(selectedActor.getProfilePath()))
+                    .transition(withCrossFade())
+                    .into(actorImageView);
+        }
+        else {
+            Glide.with(actorImageView)
+                    .load(R.drawable.no_photo_male)
+                    .transition(withCrossFade())
+                    .into(actorImageView);
+        }
         // .loadOnFailed(drawble)
         //TODO add loadOnFailed
         getActorRequest(selectedActor.getActorId());
