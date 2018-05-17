@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         inTheatersMovies = new ArrayList<>();
         searchResults = new ArrayList<>();
         // Init Recycler!!!
-        moviesAdapter = new MoviesAdapter(movies, this , true);
+        moviesAdapter = new MoviesAdapter(movies, this);
         moviesRv.setAdapter(moviesAdapter);
         gridLayoutManager = new GridLayoutManager(this, 2);
         moviesRv.setNestedScrollingEnabled(false);
@@ -126,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     @Override
     protected void onStart() {
         super.onStart();
-        moviesAdapter.setCanStart(true);
-
     }
 
     private void renderResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList , JsonArray actorJsonArr) {
@@ -407,25 +405,25 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void showFavorites() {
         ArrayList<Movie> favorites = database.getAllFavorites();
-        moviesAdapter = new MoviesAdapter(favorites, this , true);
+        moviesAdapter = new MoviesAdapter(favorites, this );
         moviesRv.setAdapter(moviesAdapter);
     }
 
     public void showPopular() {
         isInTheater = false;
-        moviesAdapter = new MoviesAdapter(movies, this , true);
+        moviesAdapter = new MoviesAdapter(movies, this );
         moviesAdapter.notifyDataSetChanged();
         moviesRv.setAdapter(moviesAdapter);
     }
     public void showInTheaters() {
-        moviesAdapter = new MoviesAdapter(inTheatersMovies, this , true);
+        moviesAdapter = new MoviesAdapter(inTheatersMovies, this );
         moviesAdapter.notifyDataSetChanged();
         isInTheater = true;
     }
 
     public void showSearched() {
         isInTheater = false;
-        moviesAdapter = new MoviesAdapter(searchResults, this , true);
+        moviesAdapter = new MoviesAdapter(searchResults, this );
         moviesRv.setAdapter(moviesAdapter);
     }
 

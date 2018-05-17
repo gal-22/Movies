@@ -23,21 +23,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Movie> movies;
     private Context context;
-    private boolean canStart;
+    private long mLastClickTime = System.currentTimeMillis();
+    private static final long CLICK_TIME_INTERVAL = 1000;
 
-    public MoviesAdapter(ArrayList<Movie> movies, Context context , boolean canStart) {
+    public MoviesAdapter(ArrayList<Movie> movies, Context context ) {
         this.movies = movies;
         this.context = context;
-        this.canStart = canStart;
+
     }
 
-    public boolean isCanStart() {
-        return canStart;
-    }
-
-    public void setCanStart(boolean canStart) {
-        this.canStart = canStart;
-    }
 
     @NonNull
     @Override
@@ -86,8 +80,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         @Override
         public void onClick(View view) {
             int pos = getAdapterPosition();
-            if (canStart) changeActivity(pos);
-
+            long now = System.currentTimeMillis();
+            if (now - mLastClickTime < CLICK_TIME_INTERVAL) {
+                return;
+            }
+            mLastClickTime = now;
+            changeActivity(pos);
         }
 
 

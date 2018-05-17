@@ -226,7 +226,6 @@ public class MovieInfo extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        actorsAdapter.setCanStart(true);
     }
     // this function inflates the menu with the heart icon...
     @Override

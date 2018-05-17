@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -29,20 +30,15 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private ArrayList<Actor> actors;
     private Context context;
-    private boolean canStart;
+    private long mLastClickTime = System.currentTimeMillis();
+    private static final long CLICK_TIME_INTERVAL = 1000;
+
     public ActorsAdapter(ArrayList<Actor> actors, Context context , boolean canStart) {
         this.actors = actors;
         this.context = context;
-        this.canStart = canStart;
     }
 
-    public boolean isCanStart() {
-        return canStart;
-    }
 
-    public void setCanStart(boolean canStart) {
-        this.canStart = canStart;
-    }
 
     @NonNull
     @Override
@@ -81,9 +77,12 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
             actorName.setText(actors.get(position).getName());
             actorRole.setText(actors.get(position).getRole());
             if (!Objects.equals(actors.get(position).getProfilePath(), "") && actors.get(position).getProfilePath() != null) {
+              //  Drawable drawable = context.getResources().getDrawable(R.drawable.no_photo_male);
                 Glide.with(actorPicture).load
                         (baseMovieUrl + fixStr(actors.get(position).getProfilePath()))
                         .into(actorPicture);
+                //.onLoadFailed(drawable)
+                //TODO onLoadFailed
             }
             Log.i("sat" , actors.get(position).getProfilePath());
         }
@@ -91,9 +90,13 @@ public class ActorsAdapter extends RecyclerView.Adapter<ActorsAdapter.ActorsView
         @Override
         public void onClick(View view) {
             int pos = getAdapterPosition();
-            if(canStart) {
-                changeActivity(pos);
+            long now = System.currentTimeMillis();
+            if (now - mLastClickTime < CLICK_TIME_INTERVAL) {
+                return;
             }
+            mLastClickTime = now;
+                changeActivity(pos);
+
         }
 
         private void changeActivity(int pos) {
