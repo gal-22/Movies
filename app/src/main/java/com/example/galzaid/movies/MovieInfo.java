@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -64,6 +65,8 @@ public class MovieInfo extends AppCompatActivity {
     private TextView actorNameTv;
     private TextView actorRoleTv;
     private ImageView actorImage;
+    private CardView trailerCv;
+    private CardView actorCv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +103,8 @@ public class MovieInfo extends AppCompatActivity {
         likeFab = findViewById(R.id.like_fab);
         appBarLayout = findViewById(R.id.main_appbar);
         runtimeTv = findViewById(R.id.runtime_tv);
+        trailerCv = findViewById(R.id.trailers_cv);
+        actorCv = findViewById(R.id.actors_info_cv);
         database = new DBHelper(this);
         actorArrayList = new ArrayList<>();  // TODO add actors
         // FIXME: 13/05/2018
@@ -117,8 +122,9 @@ public class MovieInfo extends AppCompatActivity {
         actorImage = findViewById(R.id.actor_iv);
         actorArrayList = new ArrayList<>();
         actorArrayList = selectedMovie.getActorArrayList();
-        actorsAdapter = new ActorsAdapter(actorArrayList, this , true);
+        actorsAdapter = new ActorsAdapter(actorArrayList, this, true);
         actorsRv.setAdapter(actorsAdapter);
+        if(actorArrayList.size() == 0) actorCv.setVisibility(View.GONE);
         getAllTrailers();
         selectedMovie.setFavorite(database.isFavorite(selectedMovie));
         if (selectedMovie.isFavorite()) {
@@ -197,9 +203,9 @@ public class MovieInfo extends AppCompatActivity {
                     // Somewhere in between
                     Log.i("Between", "between");
                     Log.i("Height", "" + verticalOffset + " total + " + appBarLayout.getTotalScrollRange() + " aha " + likeFab.getVisibility());
-                    if(likeFab != null) {
+                    if (likeFab != null) {
                         if (likeFab.getVisibility() == View.VISIBLE)
-                            if(likeMenu != null) likeMenu.setVisible(false);
+                            if (likeMenu != null) likeMenu.setVisible(false);
                     }
                     if (selectedMovie.isFavorite())
                         likeFab.setImageResource(R.drawable.ic_favorite);
@@ -227,6 +233,7 @@ public class MovieInfo extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
     }
+
     // this function inflates the menu with the heart icon...
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -270,11 +277,10 @@ public class MovieInfo extends AppCompatActivity {
     private static String fixStr(String str) {
         if (str == null)
             str = "";
-       else if(str.length() > 0) {
+        else if (str.length() > 0) {
             if (str.charAt(0) == '"')
                 str = str.substring(1, str.length() - 1);
-        }
-        else str = "";
+        } else str = "";
         return str;
     }
 
@@ -298,8 +304,9 @@ public class MovieInfo extends AppCompatActivity {
                                             String trailerKey = result.get("results").getAsJsonArray().get(0).getAsJsonObject().get("key").toString();
                                             movieTrailersUrlKeys.add(trailerKey);
                                             frag.initialize(PlayerConfig.API_KEY, onInitializedListener);
-                                        }
-                                    }
+                                        } else trailerCv.setVisibility(View.GONE);
+
+                                    } else trailerCv.setVisibility(View.GONE);
                                 }
                             }
                         }
@@ -313,10 +320,10 @@ public class MovieInfo extends AppCompatActivity {
         fixedNum = (double) num;
         String moneyStr;
         if (num >= 1000000000) {
-            fixedNum = round(fixedNum / 1000000000, 2);
+            fixedNum = round(fixedNum / 1000000000, 3);
             moneyStr = df.format(fixedNum) + " Billion $";
         } else if (num >= 1000000) {
-            fixedNum = round(fixedNum / 1000000, 2);
+            fixedNum = round(fixedNum / 1000000, 3);
             moneyStr = df.format(fixedNum) + " Million $";
         } else moneyStr = num + "$";
         return moneyStr;
@@ -331,12 +338,12 @@ public class MovieInfo extends AppCompatActivity {
         return (double) tmp / factor;
     }
 
-    public ArrayList<Actor> strToArrayList(String str){
+    public ArrayList<Actor> strToArrayList(String str) {
         Gson gson = new Gson();
         JsonArray jsonArray = new JsonArray();
         ArrayList<Actor> actorArrayList = new ArrayList<>();
         jsonArray = gson.fromJson(str, JsonArray.class);
-        for (int i = 0; i < jsonArray.size(); i ++) {
+        for (int i = 0; i < jsonArray.size(); i++) {
             actorArrayList.add(createActorFromJson(jsonArray.get(i).getAsJsonObject()));
         }
         return actorArrayList;
@@ -345,14 +352,13 @@ public class MovieInfo extends AppCompatActivity {
     public static Actor createActorFromJson(JsonObject actorInfo) {
         Actor actor = new Actor(0, "", "", "");
         if (actorInfo.getAsJsonObject() != null) {
-            actor.setActorId( actorInfo.getAsJsonObject().get("id").getAsInt());
+            actor.setActorId(actorInfo.getAsJsonObject().get("id").getAsInt());
             actor.setName(fixStr(actorInfo.getAsJsonObject().get("name").getAsString()));
             actor.setRole(fixStr(actorInfo.getAsJsonObject().get("character").getAsString()));
             if (actorInfo.getAsJsonObject().get("profile_path") != null) {
-               actor.setProfilePath(fixStr((actorInfo.getAsJsonObject().get("profile_path").toString())));
+                actor.setProfilePath(fixStr((actorInfo.getAsJsonObject().get("profile_path").toString())));
             }
         }
         return actor;
     }
 }
-//TODO add to selected movie it's actors!!!!!!
