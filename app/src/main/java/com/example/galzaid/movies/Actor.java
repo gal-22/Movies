@@ -59,7 +59,6 @@ public class Actor implements Serializable {
             actor.name = fixStr(actorInfo.getAsJsonObject().get("name").getAsString());
             actor.role = fixStr(actorInfo.getAsJsonObject().get("character").getAsString());
             if (actorInfo.getAsJsonObject().get("profile_path") != null) {
-                Log.i("fafar", actorInfo.getAsJsonObject().get("profile_path").toString());
                 fixStr(actor.profilePath = actorInfo.getAsJsonObject().get("profile_path").toString());
             }
         }

@@ -17,6 +17,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.galzaid.movies.Actor;
+import com.example.galzaid.movies.Constants;
 import com.example.galzaid.movies.Movie;
 import com.example.galzaid.movies.R;
 import com.example.galzaid.movies.adapters.MoviesAdapter;
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
 
     //Constants
-    private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
     private final String urlSpace = "%20";
     private final String page = "&page=";
     private final String popularTitle = "Popular movies";
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequest() {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/popular?api_key=" + API_KEY + page + pageNumber)
+                .load("https://api.themoviedb.org/3/movie/popular?api_key=" + Constants.API_KEY + page + pageNumber)
                 .asJsonObject() // result comes as json obj
                 .setCallback(new FutureCallback<JsonObject>() { // does the request in the background, the function called when request is over (onCompleted)
                     @Override
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         if(moviesDisplayState == MoviesDisplayState.popular) {
                             pageNumber = pageNumber + 1;
                             getMovieDataRequest();
-                        }// TODO change to a shared prefrences
+                        }
                         else if (moviesDisplayState == MoviesDisplayState.inTheaters) {
                             inTheaterPageNumber = inTheaterPageNumber + 1;
                             getNowPlaying();
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequestFull(String movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY + "&append_to_response=credits")
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + Constants.API_KEY + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -230,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                     actorsArrJson = result.getAsJsonObject().get("credits").getAsJsonObject()
                                             .get("cast").getAsJsonArray();
                                     actorArrayList = createActorArr(actorsArrJson);
-                                    Log.i("actor" , "" + actorArrayList.size());
                                     renderResult(result, logoPath , actorArrayList , actorsArrJson);
                                 }
 
@@ -243,12 +242,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequestFullInCinemas(String movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY)
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + Constants.API_KEY)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        Toast.makeText(MainActivity.this, "theater request done", Toast.LENGTH_SHORT).show();
                         if (e != null) {
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
                             Toast.makeText(MainActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
@@ -264,9 +262,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 });
     }
 
+
     public void renderInCinemasResult(JsonObject movieData, String logoPath) {
         Movie movie;
         movie = Movie.fromJson(movieData, logoPath); // has been done just to check if the movie exists and has a name
+        //TODO add movie actors
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
             inTheatersMovies.add(movie);
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getAdditionalMovieData(int movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + API_KEY  + "&append_to_response=credits")
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + Constants.API_KEY  + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     public void getMovieSearchRequest(String searchTitle) {
         searchTitle = searchTitle.replaceAll(" ", urlSpace); // in the browser spaces are swapped with this value.
         Ion.with(this)
-                .load("http://api.themoviedb.org/3/search/movie?api_key=" + API_KEY + "&query=" + searchTitle)
+                .load("http://api.themoviedb.org/3/search/movie?api_key=" + Constants.API_KEY + "&query=" + searchTitle)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getNowPlaying() {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/now_playing?api_key=" + API_KEY + "&language=en-US&page=" + inTheaterPageNumber)
+                .load("https://api.themoviedb.org/3/movie/now_playing?api_key=" + Constants.API_KEY + "&language=en-US&page=" + inTheaterPageNumber)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -443,4 +443,3 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
 }
 
-//TODO  Add shared prefrences which tells the state of the movies, in cinemas favorites etc...

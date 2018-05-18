@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.galzaid.movies.Constants;
 import com.example.galzaid.movies.Movie;
 import com.example.galzaid.movies.activities.MovieInfoActivity;
 import com.example.galzaid.movies.R;
@@ -25,7 +26,6 @@ import java.util.Objects;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>  {
-    private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w300";
     private ArrayList<Movie> movies;
     private Context context;
     private long mLastClickTime = System.currentTimeMillis();
@@ -77,10 +77,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             movieRate.setText(movies.get(position).getMovieRating() + "");
             if (!Objects.equals(movies.get(position).getMovieUrl(), "") && movies.get(position).getMovieUrl() != null) {
                 Glide.with(moviePoster).load
-                        (baseMovieUrl + movies.get(position).getMovieUrl())
+                        (Constants.baseImageUrlSmall + movies.get(position).getMovieUrl())
                         .transition(withCrossFade())
                         .into(moviePoster);
-            } else Log.i("No url!", "No url!");
+            }
         }
 
         @Override

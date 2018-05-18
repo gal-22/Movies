@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Movie implements Serializable {
-    private static String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private String movieUrl;
     private String movieSecondUrl;
     private String movieName;
@@ -71,15 +70,6 @@ public class Movie implements Serializable {
 
     public Movie() {
 
-    }
-
-
-    public static String getBaseMovieUrl() {
-        return baseMovieUrl;
-    }
-
-    public static void setBaseMovieUrl(String baseMovieUrl) {
-        Movie.baseMovieUrl = baseMovieUrl;
     }
 
     public String getMovieUrl() {

@@ -38,10 +38,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class MovieInfoActivity extends AppCompatActivity implements View.OnClickListener{
-    private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
-    private static final String baseTrailerUrl = "http://api.themoviedb.org/3/movie/";
-    private static final String trailerUrlEnd = "/videos?api_key=";
-    private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
     private ArrayList<String> movieTrailersUrlKeys;
     private ImageView movieIv, movieBottomIv;
     private TextView movieOverviewTv, movieTitleTv, releaseDate, rating, budgetTv, revenueTv, runtimeTv;
@@ -143,10 +139,10 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
         revenueTv.setText("Revenues: " + changeMoney(selectedMovie.getRevenue()));
         rating.setText(selectedMovie.getMovieRating() + "");
         Glide.with(movieIv)
-                .load(baseMovieUrl + fixStr(selectedMovie.getMovieSecondUrl()))
+                .load(Constants.baseImageUrlLarge + fixStr(selectedMovie.getMovieSecondUrl()))
                 .into(movieIv);
         Glide.with(movieBottomIv)
-                .load(baseMovieUrl + selectedMovie.getMovieUrl())
+                .load(Constants.baseImageUrlLarge + selectedMovie.getMovieUrl())
                 .into(movieBottomIv);
 
         getSupportActionBar().setTitle(""); // sets the title of the movie on toolbar
@@ -268,9 +264,8 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void getAllTrailers() {
-        Log.i("farfar", baseTrailerUrl + selectedMovie.getMovieId() + trailerUrlEnd + API_KEY);
         Ion.with(this)
-                .load(baseTrailerUrl + selectedMovie.getMovieId() + trailerUrlEnd + API_KEY)
+                .load(Constants.baseTrailerUrl + selectedMovie.getMovieId() + Constants.trailerUrlEnd + Constants.API_KEY)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override

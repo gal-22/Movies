@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.galzaid.movies.Actor;
+import com.example.galzaid.movies.Constants;
 import com.example.galzaid.movies.Movie;
 import com.example.galzaid.movies.R;
 import com.example.galzaid.movies.adapters.MoviesAdapter;
@@ -38,9 +39,7 @@ public class ActorActivity extends AppCompatActivity {
     private ImageView actorImageView;
     private Actor selectedActor;
     private TextView actorBiographyTv;
-    private final String baseActorUrl = "http://image.tmdb.org/t/p/w300";
     private SmoothProgressBar progressBar;
-    private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
     private ArrayList<Movie> favorites;
     private ArrayList<Movie> actorMoviesKnowFor;
     private DBHelper database;
@@ -68,7 +67,7 @@ public class ActorActivity extends AppCompatActivity {
         if(selectedActor.getProfilePath() != null && !selectedActor.getProfilePath().equals("") && !selectedActor.getProfilePath().equals("null")) {
             //  Drawable drawable = getResources().getDrawable(R.drawable.no_photo_male);
             Glide.with(actorImageView)
-                    .load(baseActorUrl + fixStr(selectedActor.getProfilePath()))
+                    .load(Constants.baseImageUrlSmall + fixStr(selectedActor.getProfilePath()))
                     .transition(withCrossFade())
                     .into(actorImageView);
         }
@@ -131,12 +130,12 @@ public class ActorActivity extends AppCompatActivity {
 
     public void getActorRequest(final int actorId) {  // basic information about the actor, description etc
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/person/"  + actorId + "?api_key=" + API_KEY + "&language=en-US")
+                .load("https://api.themoviedb.org/3/person/"  + actorId + "?api_key=" + Constants.API_KEY + "&language=en-US")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        Log.i("kamram", "https://api.themoviedb.org/3/person/" + actorId + "?api_key=" + API_KEY);
+                        Log.i("kamram", "https://api.themoviedb.org/3/person/" + actorId + "?api_key=" + Constants.API_KEY);
                         if(e != null) {
                             e.printStackTrace(); //TODO handle exception
                             Toast.makeText(ActorActivity.this, "There was an error", Toast.LENGTH_SHORT).show();
@@ -150,7 +149,7 @@ public class ActorActivity extends AppCompatActivity {
     public void getActorRequestFull(int actorId, final JsonObject actorInformation) { // adds the known for information
         Log.i("karkar", actorId + " actor id " + actorInformation.toString());
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/discover/movie?api_key=" + API_KEY + "&with_cast=" + actorId)
+                .load("https://api.themoviedb.org/3/discover/movie?api_key=" + Constants.API_KEY + "&with_cast=" + actorId)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -162,7 +161,7 @@ public class ActorActivity extends AppCompatActivity {
 
     public void getMovieFullData(final Movie movie) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movie.getMovieId() + "?api_key=" + API_KEY + "&append_to_response=credits")
+                .load("https://api.themoviedb.org/3/movie/" + movie.getMovieId() + "?api_key=" + Constants.API_KEY + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
