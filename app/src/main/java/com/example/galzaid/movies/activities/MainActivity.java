@@ -1,4 +1,4 @@
-package com.example.galzaid.movies;
+package com.example.galzaid.movies.activities;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +16,10 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.example.galzaid.movies.Actor;
+import com.example.galzaid.movies.Movie;
+import com.example.galzaid.movies.R;
+import com.example.galzaid.movies.adapters.MoviesAdapter;
 import com.example.galzaid.movies.database.DBHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -52,9 +56,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private int inTheaterPageNumber = 1;
     private boolean isLoading;
     private boolean finishedLoadingInCinemas;
-    private boolean isInTheater = false;
     private String movieId = "";
-
+    private enum MoviesDisplayState {popular, inTheaters , favorites}
+    private MoviesDisplayState moviesDisplayState;
     //Database
     private DBHelper database;
 
@@ -93,28 +97,30 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         database = new DBHelper(this);
         mDrawerLayout.addDrawerListener(this);
 
+        moviesDisplayState = MoviesDisplayState.popular;
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Log.i("Touched", item.getItemId() + "");
-
                 switch (item.getItemId()) {
                     case R.id.favorites:
                         mDrawerLayout.closeDrawers();
-                        isInTheater = false;
                         showFavorites();
+                         moviesDisplayState = MoviesDisplayState.favorites;
                         getSupportActionBar().setTitle(favoriteTitle); // TODO make it change the title.
                         break;
                     case R.id.Popular:
                         getSupportActionBar().setTitle(popularTitle); // TODO make it change the title.
-                        isInTheater = false;
                         showPopular();
+                        moviesDisplayState = MoviesDisplayState.popular;
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.in_theaters:
                         getSupportActionBar().setTitle(inTheatersTitle);
                         if(inTheatersMovies.isEmpty()) inTheaterPageNumber = 1;
-                        isInTheater = true;
+                        moviesDisplayState = MoviesDisplayState.inTheaters;
+                        showInTheaters();
                         getNowPlaying();
                         mDrawerLayout.closeDrawers();
                 }
@@ -189,17 +195,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 if (!recyclerView.canScrollVertically(1)) {
                     if (!isLoading) {
                         isLoading = true;
-                        if(toolbar.getTitle() == popularTitle) {
+                        if(moviesDisplayState == MoviesDisplayState.popular) {
                             pageNumber = pageNumber + 1;
                             getMovieDataRequest();
                         }// TODO change to a shared prefrences
-                        else if (toolbar.getTitle() == inTheatersTitle) {
+                        else if (moviesDisplayState == MoviesDisplayState.inTheaters) {
                             inTheaterPageNumber = inTheaterPageNumber + 1;
                             getNowPlaying();
                         }
                     }
-
-
                 }
             }
         });
@@ -266,8 +270,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
             inTheatersMovies.add(movie);
+            moviesAdapter.notifyItemChanged(movies.indexOf(movie));
         }
-        showInTheaters();
     }
 
     public void getAdditionalMovieData(int movieId) {
@@ -352,9 +356,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
     @Override
     public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
 
@@ -374,7 +375,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     public void onDrawerStateChanged(int newState) {
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -402,7 +402,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         return true;
     }
 
-
     public void showFavorites() {
         ArrayList<Movie> favorites = database.getAllFavorites();
         moviesAdapter = new MoviesAdapter(favorites, this );
@@ -410,19 +409,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     public void showPopular() {
-        isInTheater = false;
         moviesAdapter = new MoviesAdapter(movies, this );
         moviesAdapter.notifyDataSetChanged();
         moviesRv.setAdapter(moviesAdapter);
     }
     public void showInTheaters() {
-        moviesAdapter = new MoviesAdapter(inTheatersMovies, this );
+        moviesAdapter = new MoviesAdapter(inTheatersMovies, this);
         moviesAdapter.notifyDataSetChanged();
-        isInTheater = true;
+        moviesRv.setAdapter(moviesAdapter);
     }
 
     public void showSearched() {
-        isInTheater = false;
         moviesAdapter = new MoviesAdapter(searchResults, this );
         moviesRv.setAdapter(moviesAdapter);
     }
@@ -446,7 +443,4 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
 }
 
-
-//TODO Fix Issue when removing item from favorites it doesnt delete from favorites page until refresh ( might use on resume and check title when it is fixed)
 //TODO  Add shared prefrences which tells the state of the movies, in cinemas favorites etc...
-//TODO fix favorites doesnt show up after adding the runtime...
