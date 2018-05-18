@@ -1,6 +1,5 @@
-package com.example.galzaid.movies;
+package com.example.galzaid.movies.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -19,6 +18,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.galzaid.movies.Actor;
+import com.example.galzaid.movies.Constants;
+import com.example.galzaid.movies.Movie;
+import com.example.galzaid.movies.R;
+import com.example.galzaid.movies.adapters.ActorsAdapter;
 import com.example.galzaid.movies.database.DBHelper;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -33,22 +37,15 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MovieInfo extends AppCompatActivity {
+public class MovieInfoActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
     private static final String baseTrailerUrl = "http://api.themoviedb.org/3/movie/";
     private static final String trailerUrlEnd = "/videos?api_key=";
     private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
     private ArrayList<String> movieTrailersUrlKeys;
-    private ImageView movieIv;
-    private TextView movieOverviewTv;
-    private TextView movieTitleTv;
+    private ImageView movieIv, movieBottomIv;
+    private TextView movieOverviewTv, movieTitleTv, releaseDate, rating, budgetTv, revenueTv, runtimeTv;
     private Toolbar toolbar;
-    private ImageView movieBottomIv;
-    private TextView releaseDate;
-    private TextView rating;
-    private TextView budgetTv;
-    private TextView revenueTv;
-    public TextView runtimeTv;
     private RecyclerView actorsRv;
     private FloatingActionButton likeFab;
     private AppBarLayout appBarLayout;
@@ -56,10 +53,8 @@ public class MovieInfo extends AppCompatActivity {
     private Movie selectedMovie;
     private DBHelper database;
     private TextView trailerTv;
-    private Context context;
     private YouTubePlayerSupportFragment frag;
     private YouTubePlayer.OnInitializedListener onInitializedListener;
-    private LinearLayoutManager linearLayoutManager;
     private ActorsAdapter actorsAdapter;
     private ArrayList<Actor> actorArrayList;
     private TextView actorNameTv;
@@ -72,6 +67,7 @@ public class MovieInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_info);
+
         frag = (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_fragment);
         onInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
@@ -87,8 +83,8 @@ public class MovieInfo extends AppCompatActivity {
 
             }
         };
-        context = this;
-        movieTrailersUrlKeys = new ArrayList<>();
+
+        //Linking Views
         movieIv = findViewById(R.id.movie_iv);
         actorsRv = findViewById(R.id.actors_rv);
         trailerTv = findViewById(R.id.trailers_title_Tv);
@@ -105,11 +101,19 @@ public class MovieInfo extends AppCompatActivity {
         runtimeTv = findViewById(R.id.runtime_tv);
         trailerCv = findViewById(R.id.trailers_cv);
         actorCv = findViewById(R.id.actors_info_cv);
+        actorNameTv = findViewById(R.id.actor_name_tv);
+        actorRoleTv = findViewById(R.id.actor_role_tv);
+        actorImage = findViewById(R.id.actor_iv);
+
+        //Create database
         database = new DBHelper(this);
-        actorArrayList = new ArrayList<>();  // TODO add actors
-        // FIXME: 13/05/2018
-        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        //create data sets
+        movieTrailersUrlKeys = new ArrayList<>();
+        actorArrayList = new ArrayList<>();
+
         actorsRv.setNestedScrollingEnabled(false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         actorsRv.setLayoutManager(linearLayoutManager);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -117,14 +121,11 @@ public class MovieInfo extends AppCompatActivity {
         Intent intent = getIntent();
         selectedMovie = (Movie) intent.getSerializableExtra("movie");
         selectedMovie.setActorArrayList(strToArrayList(selectedMovie.getActorJsonArrStr()));
-        actorNameTv = findViewById(R.id.actor_name_tv);
-        actorRoleTv = findViewById(R.id.actor_role_tv);
-        actorImage = findViewById(R.id.actor_iv);
         actorArrayList = new ArrayList<>();
         actorArrayList = selectedMovie.getActorArrayList();
-        actorsAdapter = new ActorsAdapter(actorArrayList, this, true);
+        actorsAdapter = new ActorsAdapter(actorArrayList, this);
         actorsRv.setAdapter(actorsAdapter);
-        if(actorArrayList.size() == 0) actorCv.setVisibility(View.GONE);
+        if (actorArrayList.size() == 0) actorCv.setVisibility(View.GONE);
         getAllTrailers();
         selectedMovie.setFavorite(database.isFavorite(selectedMovie));
         if (selectedMovie.isFavorite()) {
@@ -160,25 +161,7 @@ public class MovieInfo extends AppCompatActivity {
         });
 
 
-        likeFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view.getId() == likeFab.getId()) {
-                    boolean isFavorite = selectedMovie.isFavorite(); // TODO change to a movie that is recived from some favorite movie db
-                    if (isFavorite) {
-                        likeFab.setImageResource(R.drawable.ic_favorite_border);
-                        likeMenu.setIcon(R.drawable.ic_favorite_border);
-                        selectedMovie.setFavorite(false);
-                        database.deleteMovie(selectedMovie);
-                    } else {
-                        likeFab.setImageResource(R.drawable.ic_favorite);
-                        likeMenu.setIcon(R.drawable.ic_favorite);
-                        selectedMovie.setFavorite(true);
-                        database.addNewMovie(selectedMovie);
-                    }
-                }
-            }
-        });
+        likeFab.setOnClickListener(this);
 
         //  Tells If the collpasing layout is collapsed
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -294,7 +277,7 @@ public class MovieInfo extends AppCompatActivity {
                     public void onCompleted(Exception e, JsonObject result) {
                         if (e != null) {
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
-                            Toast.makeText(MovieInfo.this, "Error with getting data", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MovieInfoActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
                             Log.i("results", e.getMessage());
                         } else {
                             if (result.getAsJsonObject().get("results") != null) { // if movies video exists
@@ -303,7 +286,7 @@ public class MovieInfo extends AppCompatActivity {
                                         if (Objects.equals(fixStr(result.get("results").getAsJsonArray().get(0).getAsJsonObject().get("site").toString().toLowerCase()), "youtube")) { // if the site is youtube
                                             String trailerKey = result.get("results").getAsJsonArray().get(0).getAsJsonObject().get("key").toString();
                                             movieTrailersUrlKeys.add(trailerKey);
-                                            frag.initialize(PlayerConfig.API_KEY, onInitializedListener);
+                                            frag.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener);
                                         } else trailerCv.setVisibility(View.GONE);
 
                                     } else trailerCv.setVisibility(View.GONE);
@@ -360,5 +343,29 @@ public class MovieInfo extends AppCompatActivity {
             }
         }
         return actor;
+    }
+
+    private void toggleMovieLiked() {
+        boolean isFavorite = selectedMovie.isFavorite(); // TODO change to a movie that is recived from some favorite movie db
+        if (isFavorite) {
+            likeFab.setImageResource(R.drawable.ic_favorite_border);
+            likeMenu.setIcon(R.drawable.ic_favorite_border);
+            selectedMovie.setFavorite(false);
+            database.deleteMovie(selectedMovie);
+        } else {
+            likeFab.setImageResource(R.drawable.ic_favorite);
+            likeMenu.setIcon(R.drawable.ic_favorite);
+            selectedMovie.setFavorite(true);
+            database.addNewMovie(selectedMovie);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.like_fab:
+                toggleMovieLiked();
+                break;
+        }
     }
 }
