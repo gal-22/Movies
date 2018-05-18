@@ -55,7 +55,7 @@
             android:id="@+id/all_info_constraint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:context=".MovieInfo">
+            tools:context=".activities.MovieInfoActivity">
 
             <android.support.v7.widget.CardView
                 android:id="@+id/actors_info_cv"

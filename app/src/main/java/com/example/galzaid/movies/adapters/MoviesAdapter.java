@@ -1,4 +1,4 @@
-package com.example.galzaid.movies;
+package com.example.galzaid.movies.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.galzaid.movies.Movie;
+import com.example.galzaid.movies.activities.MovieInfoActivity;
+import com.example.galzaid.movies.R;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -22,7 +25,7 @@ import java.util.Objects;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>  {
-    private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w500";
+    private static final String baseMovieUrl = "http://image.tmdb.org/t/p/w300";
     private ArrayList<Movie> movies;
     private Context context;
     private long mLastClickTime = System.currentTimeMillis();
@@ -95,7 +98,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
         private void changeActivity(int pos) {
             Movie movie = movies.get(pos);
-            Intent intent = new Intent(context, MovieInfo.class);
+            Intent intent = new Intent(context, MovieInfoActivity.class);
             intent.putExtra("movie", movie);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation((Activity) context, moviePoster, "profile");

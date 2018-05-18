@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,9 +19,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MovieInfo"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".ActorActivity"
+            android:name=".activities.MovieInfoActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name=".activities.ActorActivity"
             ></activity>
     </application>
 
