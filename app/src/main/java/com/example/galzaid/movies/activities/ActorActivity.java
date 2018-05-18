@@ -1,10 +1,8 @@
-package com.example.galzaid.movies;
+package com.example.galzaid.movies.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.example.galzaid.movies.Actor;
+import com.example.galzaid.movies.Movie;
+import com.example.galzaid.movies.R;
+import com.example.galzaid.movies.adapters.MoviesAdapter;
 import com.example.galzaid.movies.database.DBHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,7 +38,7 @@ public class ActorActivity extends AppCompatActivity {
     private ImageView actorImageView;
     private Actor selectedActor;
     private TextView actorBiographyTv;
-    private final String baseActorUrl = "http://image.tmdb.org/t/p/w500";
+    private final String baseActorUrl = "http://image.tmdb.org/t/p/w300";
     private SmoothProgressBar progressBar;
     private final String API_KEY = "ba50009df309cfd8d537ba914557af7f";
     private ArrayList<Movie> favorites;
