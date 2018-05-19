@@ -26,7 +26,10 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -38,7 +41,7 @@ public class ActorActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ImageView actorImageView;
     private Actor selectedActor;
-    private TextView actorBiographyTv;
+    private TextView actorBiographyTv, actorBiographyTitleTv, bornTv, bornTitle;
     private SmoothProgressBar progressBar;
     private ArrayList<Movie> favorites;
     private ArrayList<Movie> actorMoviesKnowFor;
@@ -51,11 +54,7 @@ public class ActorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_actor);
-        toolbar = findViewById(R.id.actor_toolbar);
-        actorImageView = findViewById(R.id.actor_profile_iv);
-        progressBar = findViewById(R.id.actors_progress_bar);
-        actorBiographyTv = findViewById(R.id.actor_biography_tv);
-        moviesRv = findViewById(R.id.movie_actor_rv);
+        initViews();
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         moviesRv.setNestedScrollingEnabled(false);
         moviesRv.setLayoutManager(linearLayoutManager);
@@ -64,14 +63,13 @@ public class ActorActivity extends AppCompatActivity {
         favorites = database.getAllFavorites();
         Intent intent = getIntent();
         selectedActor = (Actor) intent.getSerializableExtra("actor");
-        if(selectedActor.getProfilePath() != null && !selectedActor.getProfilePath().equals("") && !selectedActor.getProfilePath().equals("null")) {
+        if (selectedActor.getProfilePath() != null && !selectedActor.getProfilePath().equals("") && !selectedActor.getProfilePath().equals("null")) {
             //  Drawable drawable = getResources().getDrawable(R.drawable.no_photo_male);
             Glide.with(actorImageView)
                     .load(Constants.baseImageUrlSmall + fixStr(selectedActor.getProfilePath()))
                     .transition(withCrossFade())
                     .into(actorImageView);
-        }
-        else {
+        } else {
             Glide.with(actorImageView)
                     .load(R.drawable.no_photo_male)
                     .transition(withCrossFade())
@@ -83,7 +81,7 @@ public class ActorActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.setTitle(selectedActor.getName());
+        getSupportActionBar().setTitle(selectedActor.getName());
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,7 +95,7 @@ public class ActorActivity extends AppCompatActivity {
         progressBar.setSmoothProgressDrawableStrokeWidth(20f);
         progressBar.setSmoothProgressDrawableSeparatorLength(0);
         progressBar.setSmoothProgressDrawableUseGradients(true);
-        progressBar.setFadingEdgeLength(3);
+        progressBar.setFadingEdgeLength(2);
         progressBar.progressiveStart();
         int[] colors;
         colors = initColors();
@@ -124,24 +122,23 @@ public class ActorActivity extends AppCompatActivity {
     public static String fixStr(String str) {
         assert str != null;
         if (str.charAt(0) == '"') str = str.substring(1, str.length() - 1);
-        if(str.equals("null")) str = "";
+        if (str.equals("null")) str = "";
         return str;
     }
 
     public void getActorRequest(final int actorId) {  // basic information about the actor, description etc
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/person/"  + actorId + "?api_key=" + Constants.API_KEY + "&language=en-US")
+                .load("https://api.themoviedb.org/3/person/" + actorId + "?api_key=" + Constants.API_KEY + "&language=en-US")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         Log.i("kamram", "https://api.themoviedb.org/3/person/" + actorId + "?api_key=" + Constants.API_KEY);
-                        if(e != null) {
+                        if (e != null) {
                             e.printStackTrace(); //TODO handle exception
                             Toast.makeText(ActorActivity.this, "There was an error", Toast.LENGTH_SHORT).show();
                             progressBar.progressiveStop();
-                        }
-                        else getActorRequestFull(actorId, result);
+                        } else getActorRequestFull(actorId, result);
                     }
                 });
     }
@@ -188,23 +185,39 @@ public class ActorActivity extends AppCompatActivity {
             getMovieFullData(actorMoviesKnowFor.get(i));
         }
         Log.i("far", "" + actorInformation.getAsJsonObject().toString());
+        String birthday = "";
+        String placeOfBirth = "";
         String biography = actorInformation.getAsJsonObject().get("biography").getAsString();
+        if (biography.equals("")) {
+            actorBiographyTitleTv.setVisibility(View.GONE);
+            actorBiographyTv.setVisibility(View.GONE);
+        }
+        if (actorInformation.getAsJsonObject().get("birthday") != null) {
+            birthday = actorInformation.getAsJsonObject().get("birthday").toString();
+            if (actorInformation.getAsJsonObject().get("place_of_birth") != null) {
+                placeOfBirth = actorInformation.getAsJsonObject().get("place_of_birth").toString();
+            }
+        }
         actorBiographyTv.setText(biography);
+        if (birthday.equals("") || birthday.equals("null")) {
+            bornTitle.setVisibility(View.GONE);
+            bornTv.setVisibility(View.GONE);
+        } else {
+            bornTv.setText(birthday + "\n" + placeOfBirth);
+        }
         progressBar.progressiveStop();
     }
 
     public void addFullDataToMovie(JsonObject credits, Movie movie) {
         for (int i = 0; i < actorMoviesKnowFor.size(); i++) {
             if (actorMoviesKnowFor.get(i).getMovieId() == movie.getMovieId()) {
-                if(credits.getAsJsonObject() != null) {
+                if (credits.getAsJsonObject() != null) {
                     actorMoviesKnowFor.get(i).setBudget(credits.getAsJsonObject().get("budget").getAsInt());
-                }
-                else actorMoviesKnowFor.get(i).setBudget(0);
+                } else actorMoviesKnowFor.get(i).setBudget(0);
                 actorMoviesKnowFor.get(i).setRuntime(fixStr(credits.getAsJsonObject().get("runtime").toString()));
-                if(credits.getAsJsonObject().get("revenue") != null) {
+                if (credits.getAsJsonObject().get("revenue") != null) {
                     actorMoviesKnowFor.get(i).setRevenue(credits.getAsJsonObject().get("revenue").getAsInt());
-                }
-                else actorMoviesKnowFor.get(i).setRevenue(0);
+                } else actorMoviesKnowFor.get(i).setRevenue(0);
                 actorMoviesKnowFor.get(i).setActorJsonArrStr(credits.getAsJsonObject().get("credits").getAsJsonObject()
                         .get("cast").getAsJsonArray().toString());
                 actorMoviesKnowFor.get(i).setActorArrayList(createActorArr(credits.getAsJsonObject().get("credits").getAsJsonObject()
@@ -264,5 +277,15 @@ public class ActorActivity extends AppCompatActivity {
         return actorArrayList;
     }
 
+    public void initViews() {
+        toolbar = findViewById(R.id.actor_toolbar);
+        actorImageView = findViewById(R.id.actor_profile_iv);
+        progressBar = findViewById(R.id.actors_progress_bar);
+        actorBiographyTv = findViewById(R.id.actor_biography_tv);
+        actorBiographyTitleTv = findViewById(R.id.actor_biography_title);
+        bornTv = findViewById(R.id.born_tv);
+        bornTitle = findViewById(R.id.born_titile_tv);
+        moviesRv = findViewById(R.id.movie_actor_rv);
+    }
 
 }

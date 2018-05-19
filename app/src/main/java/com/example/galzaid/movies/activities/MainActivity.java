@@ -31,13 +31,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
 
-    //Constants
-    private final String urlSpace = "%20";
-    private final String page = "&page=";
-    private final String popularTitle = "Popular movies";
-    private final String inTheatersTitle = "In Theaters";
-    private final String favoriteTitle = "Favorites";
-
     //UI Objects
     private DrawerLayout mDrawerLayout;
     private RecyclerView moviesRv;
@@ -74,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         // toolbar setup
         if (toolbar != null) {
             setSupportActionBar(toolbar);
-            getSupportActionBar().setTitle(popularTitle);
+            getSupportActionBar().setTitle(Constants.popularTitle);
         }
 
         //set the actions bar settings
@@ -108,16 +101,16 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         mDrawerLayout.closeDrawers();
                         showFavorites();
                          moviesDisplayState = MoviesDisplayState.favorites;
-                        getSupportActionBar().setTitle(favoriteTitle); // TODO make it change the title.
+                        getSupportActionBar().setTitle(Constants.favoriteTitle); // TODO make it change the title.
                         break;
                     case R.id.Popular:
-                        getSupportActionBar().setTitle(popularTitle); // TODO make it change the title.
+                        getSupportActionBar().setTitle(Constants.popularTitle); // TODO make it change the title.
                         showPopular();
                         moviesDisplayState = MoviesDisplayState.popular;
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.in_theaters:
-                        getSupportActionBar().setTitle(inTheatersTitle);
+                        getSupportActionBar().setTitle(Constants.inTheatersTitle);
                         if(inTheatersMovies.isEmpty()) inTheaterPageNumber = 1;
                         moviesDisplayState = MoviesDisplayState.inTheaters;
                         showInTheaters();
@@ -163,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequest() {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/popular?api_key=" + Constants.API_KEY + page + pageNumber)
+                .load("https://api.themoviedb.org/3/movie/popular?api_key=" + Constants.API_KEY + Constants.page + pageNumber)
                 .asJsonObject() // result comes as json obj
                 .setCallback(new FutureCallback<JsonObject>() { // does the request in the background, the function called when request is over (onCompleted)
                     @Override
@@ -219,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         if (e != null) {
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
                             Toast.makeText(MainActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
-                            Log.i("results", e.getMessage() + "");
                         } else {
                             if (result != null) {
                                 String logoPath;
@@ -242,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     public void getMovieDataRequestFullInCinemas(String movieId) {
         Ion.with(this)
-                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + Constants.API_KEY)
+                .load("https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + Constants.API_KEY + "&append_to_response=credits")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -251,11 +243,20 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
                             Toast.makeText(MainActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
                             Log.i("results", e.getMessage() + "");
-                        } else if (result != null) {
-                            String logoPath;
-                            if (result.getAsJsonObject().get("backdrop_path") != null) {
-                                logoPath = result.getAsJsonObject().get("backdrop_path").toString();
-                                renderInCinemasResult(result, logoPath);
+                        } else {
+                            if (result != null) {
+                                String logoPath;
+                                JsonArray actorsArrJson;
+                                ArrayList<Actor> actorArrayList;
+                                if (result.getAsJsonObject().get("backdrop_path") != null) {
+                                    logoPath = result.getAsJsonObject().get("backdrop_path").toString();
+                                    actorsArrJson = result.getAsJsonObject().get("credits").getAsJsonObject()
+                                            .get("cast").getAsJsonArray();
+                                    actorArrayList = createActorArr(actorsArrJson);
+                                    renderInCinemasResult(result, logoPath , actorArrayList , actorsArrJson);
+                                }
+
+
                             }
                         }
                     }
@@ -263,12 +264,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
 
-    public void renderInCinemasResult(JsonObject movieData, String logoPath) {
+    public void renderInCinemasResult(JsonObject movieData, String logoPath , ArrayList<Actor> actorArrayList , JsonArray actorJsonArr) {
         Movie movie;
         movie = Movie.fromJson(movieData, logoPath); // has been done just to check if the movie exists and has a name
         //TODO add movie actors
         if (!movie.getMovieName().equals("") || movie.getMovieName() != null) {
             movie.setMovieSecondUrl(logoPath);
+            movie.setActorArrayList(actorArrayList);
+            movie.setActorJsonArrStr(actorJsonArr.toString());
             inTheatersMovies.add(movie);
             moviesAdapter.notifyItemChanged(movies.indexOf(movie));
         }
@@ -295,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     public void getMovieSearchRequest(String searchTitle) {
-        searchTitle = searchTitle.replaceAll(" ", urlSpace); // in the browser spaces are swapped with this value.
+        searchTitle = searchTitle.replaceAll(" ", Constants.urlSpace); // in the browser spaces are swapped with this value.
         Ion.with(this)
                 .load("http://api.themoviedb.org/3/search/movie?api_key=" + Constants.API_KEY + "&query=" + searchTitle)
                 .asJsonObject()
@@ -427,9 +430,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     @Override
     public void onBackPressed() {
         if (toolbar != null) {
-            if (getSupportActionBar().getTitle() != popularTitle) { // TODO change to shared prefrences...
+            if (moviesDisplayState != MoviesDisplayState.popular) {
                 showPopular();
-                getSupportActionBar().setTitle(popularTitle);
+                getSupportActionBar().setTitle(Constants.popularTitle);
             } else super.onBackPressed();
         }
     }

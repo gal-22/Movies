@@ -10,8 +10,5 @@
         <item
             android:id="@+id/in_theaters"
             android:title="In theaters" />
-        <item
-            android:id="@+id/Comedy"
-            android:title="Comedy" />
     </group>
 </menu>

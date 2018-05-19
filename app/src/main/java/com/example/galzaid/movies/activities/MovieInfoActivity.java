@@ -48,14 +48,10 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
     private MenuItem likeMenu;
     private Movie selectedMovie;
     private DBHelper database;
-    private TextView trailerTv;
     private YouTubePlayerSupportFragment frag;
     private YouTubePlayer.OnInitializedListener onInitializedListener;
     private ActorsAdapter actorsAdapter;
     private ArrayList<Actor> actorArrayList;
-    private TextView actorNameTv;
-    private TextView actorRoleTv;
-    private ImageView actorImage;
     private CardView trailerCv;
     private CardView actorCv;
 
@@ -80,34 +76,13 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
             }
         };
 
-        //Linking Views
-        movieIv = findViewById(R.id.movie_iv);
-        actorsRv = findViewById(R.id.actors_rv);
-        trailerTv = findViewById(R.id.trailers_title_Tv);
-        movieOverviewTv = findViewById(R.id.movie_overview_tv);
-        movieTitleTv = findViewById(R.id.movie_title_tv);
-        toolbar = findViewById(R.id.main_toolbar);
-        movieBottomIv = findViewById(R.id.movie_bottom_iv);
-        rating = findViewById(R.id.movie_rating_info_tv);
-        releaseDate = findViewById(R.id.movie_release_date_tv);
-        revenueTv = findViewById(R.id.revenues_tv);
-        budgetTv = findViewById(R.id.budget_tv);
-        likeFab = findViewById(R.id.like_fab);
-        appBarLayout = findViewById(R.id.main_appbar);
-        runtimeTv = findViewById(R.id.runtime_tv);
-        trailerCv = findViewById(R.id.trailers_cv);
-        actorCv = findViewById(R.id.actors_info_cv);
-        actorNameTv = findViewById(R.id.actor_name_tv);
-        actorRoleTv = findViewById(R.id.actor_role_tv);
-        actorImage = findViewById(R.id.actor_iv);
-
         //Create database
         database = new DBHelper(this);
 
         //create data sets
         movieTrailersUrlKeys = new ArrayList<>();
         actorArrayList = new ArrayList<>();
-
+        initViews();
         actorsRv.setNestedScrollingEnabled(false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         actorsRv.setLayoutManager(linearLayoutManager);
@@ -362,5 +337,24 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
                 toggleMovieLiked();
                 break;
         }
+    }
+
+    public void initViews() {
+        //Linking Views
+        movieIv = findViewById(R.id.movie_iv);
+        actorsRv = findViewById(R.id.actors_rv);
+        movieOverviewTv = findViewById(R.id.movie_overview_tv);
+        movieTitleTv = findViewById(R.id.movie_title_tv);
+        toolbar = findViewById(R.id.main_toolbar);
+        movieBottomIv = findViewById(R.id.movie_bottom_iv);
+        rating = findViewById(R.id.movie_rating_info_tv);
+        releaseDate = findViewById(R.id.movie_release_date_tv);
+        revenueTv = findViewById(R.id.revenues_tv);
+        budgetTv = findViewById(R.id.budget_tv);
+        likeFab = findViewById(R.id.like_fab);
+        appBarLayout = findViewById(R.id.main_appbar);
+        runtimeTv = findViewById(R.id.runtime_tv);
+        trailerCv = findViewById(R.id.trailers_cv);
+        actorCv = findViewById(R.id.actors_info_cv);
     }
 }

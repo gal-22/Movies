@@ -46,14 +46,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <TextView
+                    android:id="@+id/known_for_title_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Known for:"
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/actor_info_cv" />
+
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/movie_actor_rv"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="5dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/actor_info_cv" />
+                    app:layout_constraintTop_toBottomOf="@+id/known_for_title_tv" />
 
                 <fr.castorflex.android.smoothprogressbar.SmoothProgressBar xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -105,7 +117,9 @@
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="2dp"
-                            android:text="Actor Biography"
+                            android:text="Biography"
+                            android:textSize="16dp"
+                            android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -123,6 +137,26 @@
                     </android.support.constraint.ConstraintLayout>
 
                 </android.support.v7.widget.CardView>
+
+                <TextView
+                    android:id="@+id/born_titile_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Born:"
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@+id/actor_profile_iv"
+                    app:layout_constraintTop_toTopOf="@+id/actor_profile_iv" />
+
+                <TextView
+                    android:id="@+id/born_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/born_titile_tv"
+                    app:layout_constraintTop_toBottomOf="@+id/born_titile_tv" />
 
             </android.support.constraint.ConstraintLayout>
         </android.support.v4.widget.NestedScrollView>
