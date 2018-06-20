@@ -12,5 +12,8 @@ public class Constants {
     public static final String popularTitle = "Popular movies";
     public static final String favoriteTitle = "Favorites";
     public static final String inTheatersTitle = "In Theaters";
+    public static final String upcomingTitle = "Upcoming";
+    public static final String topRatedTitle = "Top rated";
+    public static final String restrictedMovieId = "329103";
 
 }

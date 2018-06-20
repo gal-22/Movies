@@ -26,6 +26,7 @@ import com.example.galzaid.movies.adapters.ActorsAdapter;
 import com.example.galzaid.movies.database.DBHelper;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -176,16 +177,16 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
 
 
     }
+    @Override
+    protected void onPause() {
+        frag.setRetainInstance(true);
+        super.onPause();
+    }
 
     @Override
     public void onBackPressed() {
         supportFinishAfterTransition();
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     // this function inflates the menu with the heart icon...
@@ -248,7 +249,6 @@ public class MovieInfoActivity extends AppCompatActivity implements View.OnClick
                         if (e != null) {
                             e.printStackTrace(); // if there is an error e. TODO Handle exception
                             Toast.makeText(MovieInfoActivity.this, "Error with getting data", Toast.LENGTH_SHORT).show();
-                            Log.i("results", e.getMessage());
                         } else {
                             if (result.getAsJsonObject().get("results") != null) { // if movies video exists
                                 if (result.get("results").getAsJsonArray() != null) {
